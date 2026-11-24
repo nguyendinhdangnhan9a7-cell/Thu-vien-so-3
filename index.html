@@ -1,0 +1,1324 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FPT Poly Digital Library | Thư Viện Số Sinh Viên IT</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* ================= BIẾN MÀU SẮC & THEME ================= */
+        :root {
+            --fpt-orange: #f37021;
+            --fpt-orange-glow: rgba(243, 112, 33, 0.35);
+            --fpt-blue: #0066b3;
+            --fpt-green: #0db14b;
+            --transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        [data-theme="dark"] {
+            --bg-main: #0b0f19;
+            --bg-secondary: #111827;
+            --bg-card: rgba(30, 41, 59, 0.65);
+            --bg-sidebar: rgba(15, 23, 42, 0.85);
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --border-color: rgba(255, 255, 255, 0.1);
+            --card-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.6);
+            --slide-bg: #1e293b;
+        }
+
+        [data-theme="light"] {
+            --bg-main: #f1f5f9;
+            --bg-secondary: #ffffff;
+            --bg-card: rgba(255, 255, 255, 0.85);
+            --bg-sidebar: rgba(255, 255, 255, 0.9);
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --border-color: rgba(15, 23, 42, 0.1);
+            --card-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08);
+            --slide-bg: #ffffff;
+        }
+
+        /* ================= RESET & CƠ BẢN ================= */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+            line-height: 1.6;
+            transition: var(--transition);
+            overflow-x: hidden;
+        }
+
+        /* Thanh tiến trình đọc bài trên cùng */
+        .progress-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: transparent;
+            z-index: 1000;
+        }
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--fpt-orange), #ff9e5e);
+            width: 0%;
+            transition: width 0.1s;
+        }
+
+        /* Hiệu ứng nền Particle / Gradient */
+        .bg-glow {
+            position: fixed;
+            width: 500px;
+            height: 500px;
+            border-radius: 50%;
+            background: radial-gradient(circle, var(--fpt-orange-glow) 0%, transparent 70%);
+            top: -150px;
+            right: -150px;
+            z-index: -1;
+            pointer-events: none;
+            animation: floatGlow 10s infinite alternate ease-in-out;
+        }
+        @keyframes floatGlow {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(-80px, 80px) scale(1.15); }
+        }
+
+        /* ================= BỐ CỤC CHÍNH ================= */
+        .layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* SIDEBAR MỤC LỤC */
+        .sidebar {
+            width: 300px;
+            background: var(--bg-sidebar);
+            backdrop-filter: blur(16px);
+            border-right: 1px solid var(--border-color);
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            padding: 1.5rem;
+            overflow-y: auto;
+            z-index: 900;
+            transition: var(--transition);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding-bottom: 1.2rem;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 1.2rem;
+        }
+
+        .brand-logo {
+            width: 42px;
+            height: 42px;
+            background: linear-gradient(135deg, var(--fpt-orange), #ff5500);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 800;
+            font-size: 1.2rem;
+            box-shadow: 0 4px 15px var(--fpt-orange-glow);
+        }
+
+        .brand-text h2 {
+            font-size: 1.05rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+
+        .brand-text span {
+            font-size: 0.75rem;
+            color: var(--fpt-orange);
+            font-weight: 600;
+        }
+
+        /* Ô tìm kiếm trong sidebar */
+        .search-box {
+            position: relative;
+            margin-bottom: 1.2rem;
+        }
+        .search-box input {
+            width: 100%;
+            padding: 0.65rem 1rem 0.65rem 2.4rem;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-main);
+            color: var(--text-primary);
+            font-size: 0.85rem;
+            outline: none;
+            transition: var(--transition);
+        }
+        .search-box input:focus {
+            border-color: var(--fpt-orange);
+            box-shadow: 0 0 0 3px var(--fpt-orange-glow);
+        }
+        .search-box i {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+
+        .toc-title {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-secondary);
+            margin-bottom: 0.75rem;
+            font-weight: 700;
+        }
+
+        .toc-list {
+            list-style: none;
+        }
+
+        .toc-item {
+            margin-bottom: 0.4rem;
+        }
+
+        .toc-link {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 0.65rem 0.85rem;
+            border-radius: 10px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.88rem;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+
+        .toc-link:hover, .toc-link.active {
+            background: rgba(243, 112, 33, 0.12);
+            color: var(--fpt-orange);
+            transform: translateX(4px);
+        }
+
+        .toc-num {
+            background: var(--border-color);
+            color: var(--text-primary);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            padding: 2px 7px;
+            border-radius: 6px;
+        }
+        .toc-link.active .toc-num {
+            background: var(--fpt-orange);
+            color: white;
+        }
+
+        /* ================= NỘI DUNG CHÍNH ================= */
+        .main-content {
+            flex: 1;
+            margin-left: 300px;
+            padding: 2rem 3rem;
+            max-width: 1400px;
+        }
+
+        /* HEADER & NÚT DARK/LIGHT */
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .student-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(243, 112, 33, 0.15);
+            border: 1px solid rgba(243, 112, 33, 0.3);
+            color: var(--fpt-orange);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 700;
+        }
+
+        .controls {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .theme-btn {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 0.6rem 1rem;
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            transition: var(--transition);
+        }
+        .theme-btn:hover {
+            border-color: var(--fpt-orange);
+            transform: translateY(-2px);
+        }
+
+        /* HERO BANNER */
+        .hero {
+            background: linear-gradient(135deg, rgba(243, 112, 33, 0.15), rgba(0, 102, 179, 0.15));
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            padding: 2.5rem;
+            margin-bottom: 3rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero h1 {
+            font-size: 2.2rem;
+            font-weight: 800;
+            margin-bottom: 0.75rem;
+            background: linear-gradient(90deg, var(--fpt-orange), #ff9e5e);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p {
+            color: var(--text-secondary);
+            max-width: 750px;
+            font-size: 1rem;
+        }
+
+        /* ================= SECTION TỪNG CHƯƠNG (8 SLIDE) ================= */
+        .module-section {
+            margin-bottom: 4rem;
+            scroll-margin-top: 2rem;
+            opacity: 0;
+            transform: translateY(25px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+
+        .module-section.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .module-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .module-tag {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            color: var(--fpt-orange);
+            font-weight: 700;
+            text-transform: uppercase;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .module-header h2 {
+            font-size: 1.65rem;
+            font-weight: 800;
+        }
+
+        /* Nút mở trình chiếu từng slide */
+        .btn-present {
+            background: linear-gradient(135deg, var(--fpt-orange), #e05a0b);
+            color: white;
+            border: none;
+            padding: 0.7rem 1.25rem;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 0.88rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 15px var(--fpt-orange-glow);
+            transition: var(--transition);
+        }
+        .btn-present:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 8px 25px var(--fpt-orange-glow);
+        }
+
+        /* LƯỚI THẺ KIẾN THỨC */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.25rem;
+        }
+
+        .info-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border-color);
+            border-radius: 18px;
+            padding: 1.5rem;
+            box-shadow: var(--card-shadow);
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .info-card:hover {
+            transform: translateY(-6px);
+            border-color: var(--fpt-orange);
+        }
+
+        .card-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            background: rgba(243, 112, 33, 0.12);
+            color: var(--fpt-orange);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+        }
+
+        .info-card h3 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 0.6rem;
+        }
+
+        .info-card p, .info-card ul {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .info-card ul {
+            padding-left: 1.2rem;
+            margin-top: 0.5rem;
+        }
+        .info-card li {
+            margin-bottom: 0.35rem;
+        }
+
+        /* ================= MODAL TRÌNH CHIẾU TỪNG SLIDE ================= */
+        .slide-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(5, 8, 17, 0.88);
+            backdrop-filter: blur(12px);
+            z-index: 2000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .slide-modal.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .slide-viewer {
+            background: var(--slide-bg);
+            color: var(--text-primary);
+            width: 100%;
+            max-width: 920px;
+            min-height: 520px;
+            border-radius: 24px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 2.5rem;
+            position: relative;
+            animation: zoomIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes zoomIn {
+            from { transform: scale(0.92); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .slide-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 1rem;
+        }
+
+        .slide-topic-badge {
+            background: var(--fpt-orange);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+
+        .close-modal {
+            background: rgba(239, 68, 68, 0.15);
+            color: #ef4444;
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .close-modal:hover {
+            background: #ef4444;
+            color: white;
+        }
+
+        .slide-body {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 2rem 0;
+        }
+
+        .slide-body h2 {
+            font-size: 1.9rem;
+            font-weight: 800;
+            margin-bottom: 1.2rem;
+            color: var(--fpt-orange);
+        }
+
+        .slide-body-content {
+            font-size: 1.1rem;
+            line-height: 1.8;
+        }
+
+        .slide-body-content ul {
+            padding-left: 1.5rem;
+        }
+        .slide-body-content li {
+            margin-bottom: 0.75rem;
+        }
+
+        .slide-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid var(--border-color);
+            padding-top: 1rem;
+        }
+
+        .slide-nav-btns {
+            display: flex;
+            gap: 12px;
+        }
+
+        .nav-slide-btn {
+            background: var(--bg-main);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 0.6rem 1.2rem;
+            border-radius: 10px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .nav-slide-btn:hover:not(:disabled) {
+            background: var(--fpt-orange);
+            color: white;
+            border-color: var(--fpt-orange);
+        }
+        .nav-slide-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .slide-counter {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700;
+            color: var(--text-secondary);
+        }
+
+        /* RESPONSIVE */
+        .mobile-menu-btn {
+            display: none;
+            background: var(--fpt-orange);
+            color: white;
+            border: none;
+            padding: 0.6rem 0.9rem;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            cursor: pointer;
+        }
+
+        @media (max-width: 992px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            .main-content {
+                margin-left: 0;
+                padding: 1.5rem;
+            }
+            .mobile-menu-btn {
+                display: inline-block;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Thanh tiến trình cuộn trang -->
+    <div class="progress-container">
+        <div class="progress-bar" id="readingProgress"></div>
+    </div>
+
+    <div class="bg-glow"></div>
+
+    <div class="layout">
+        <!-- SIDEBAR MỤC LỤC -->
+        <aside class="sidebar" id="sidebar">
+            <div class="brand">
+                <div class="brand-logo">FP</div>
+                <div class="brand-text">
+                    <h2>FPT Digital Lib</h2>
+                    <span>Khoa CNTT • Năm Nhất</span>
+                </div>
+            </div>
+
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" id="searchInput" placeholder="Tìm nhanh kiến thức...">
+            </div>
+
+            <div class="toc-title">Mục Lục 8 Chuyên Đề</div>
+            <ul class="toc-list" id="tocList">
+                <li class="toc-item"><a href="#slide-1" class="toc-link active"><span class="toc-num">01</span> CMCN 4.0 & Chuyển đổi số</a></li>
+                <li class="toc-item"><a href="#slide-2" class="toc-link"><span class="toc-num">02</span> Kiến trúc & Phần cứng</a></li>
+                <li class="toc-item"><a href="#slide-3" class="toc-link"><span class="toc-num">03</span> Hệ điều hành & Đa nền tảng</a></li>
+                <li class="toc-item"><a href="#slide-4" class="toc-link"><span class="toc-num">04</span> Phần mềm, Cloud & Platform</a></li>
+                <li class="toc-item"><a href="#slide-5" class="toc-link"><span class="toc-num">05</span> Mạng, Internet 4.0 & IoT</a></li>
+                <li class="toc-item"><a href="#slide-6" class="toc-link"><span class="toc-num">06</span> Tư duy lập trình & Vibe Code</a></li>
+                <li class="toc-item"><a href="#slide-7" class="toc-link"><span class="toc-num">07</span> Trí tuệ nhân tạo & Prompt</a></li>
+                <li class="toc-item"><a href="#slide-8" class="toc-link"><span class="toc-num">08</span> An toàn thông tin & Luật số</a></li>
+            </ul>
+        </aside>
+
+        <!-- NỘI DUNG CHÍNH -->
+        <main class="main-content">
+            <header class="top-bar">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <button class="mobile-menu-btn" id="menuToggle"><i class="fas fa-bars"></i></button>
+                    <div class="student-badge">
+                        <i class="fas fa-graduation-cap"></i> FPT Polytechnic • Nhập Môn CNTT
+                    </div>
+                </div>
+                <div class="controls">
+                    <button class="theme-btn" id="themeToggle">
+                        <i class="fas fa-sun" id="themeIcon"></i>
+                        <span id="themeText">Chế độ Sáng</span>
+                    </button>
+                </div>
+            </header>
+
+            <section class="hero">
+                <h1>Thư Viện Số Cá Nhân — Kỷ Nguyên Số 4.0</h1>
+                <p>Hệ thống hóa toàn bộ 8 chuyên đề nền tảng dành cho sinh viên Công nghệ Thông tin năm nhất FPT Polytechnic. Tích hợp trình chiếu tương tác từng slide giúp ôn tập nhanh, trực quan và hiệu quả.</p>
+            </section>
+
+            <!-- ================= SLIDE 1 ================= -->
+            <section id="slide-1" class="module-section">
+                <div class="module-header">
+                    <div>
+                        <span class="module-tag">Chuyên đề 01 / Slide 1</span>
+                        <h2>Tổng Quan CMCN 4.0, CNTT 4.0 & Chuyển Đổi Số</h2>
+                    </div>
+                    <button class="btn-present" onclick="openSlideDeck(0)">
+                        <i class="fas fa-play-circle"></i> Xem từng Slide (5 slides)
+                    </button>
+                </div>
+                <div class="cards-grid">
+                    <div class="info-card">
+                        <div class="card-icon"><i class="fas fa-industry"></i></div>
+                        <h3>4 Cuộc Cách Mạng Công Nghiệp</h3>
+                        <ul>
+                            <li><strong>1.0 (1760):</strong> Cơ khí hóa bằng máy hơi nước.</li>
+                            <li><strong>2.0 (1870):</strong> Điện năng & dây chuyền hàng loạt.</li>
+                            <li><strong>3.0 (1970):</strong> Tự động hóa với máy tính & bán dẫn.</li>
+                            <li><strong>4.0 (2010+):</strong> Hợp nhất thực - ảo qua AI, IoT, Big Data.</li>
+                        </ul>
+                    </div>
+                    <div class="info-card">
+                        <div class="card-icon"><i class="fas fa-microchip"></i></div>
+                        <h3>4 Trụ Cột Công Nghệ Cốt Lõi</h3>
+                        <ul>
+                            <li><strong>AI:</strong> Máy học, nhận diện và tự ra quyết định.</li>
+                            <li><strong>IoT:</strong> Vạn vật kết nối thu thập dữ liệu liên tục.</li>
+                            <li><strong>Big Data:</strong> Khai phá dữ liệu khổng lồ (Volume, Velocity, Variety).</li>
+                            <li><strong>Cloud:</strong> Hạ tầng lưu trữ và tính toán đám mây mọi lúc.</li>
+                        </ul>
+                    </div>
+                    <div class="info-card">
+                        <div class="card-icon"><i class="fas fa-user-astronaut"></i></div>
+                        <h3>Hành Trang Sinh Viên IT FPT</h3>
+                        <p>Chuyển đổi số (CĐS) thay đổi toàn diện cách vận hành xã hội. Sinh viên cần rèn tư duy logic, lập trình, làm việc nhóm (CDIO), ngoại ngữ và tinh thần học tập suốt đời.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ================= SLIDE 2 ================= -->
+            <section id="slide-2" class="module-section">
+                <div class="module-header">
+                    <div>
+                        <span class="module-tag">Chuyên đề 02 / Slide 2</span>
+                        <h2>Kiến Trúc & Phần Cứng Máy Tính</h2>
+                    </div>
+                    <button class="btn-present" onclick="openSlideDeck(1)">
+                        <i class="fas fa-play-circle"></i> Xem từng Slide (5 slides)
+                    </button>
+                </div>
+                <div class="cards-grid">
+                    <div class="info-card">
+                        <div class="card-icon"><i class="fas fa-exchange-alt"></i></div>
+                        <h3>Chu Trình Xử Lý Dữ Liệu</h3>
+                        <p>Mọi hệ thống máy tính đều vận hành theo chuỗi khép kín: <strong>Input</strong> (Bàn phím, chuột) → <strong>Process</strong> (CPU xử lý) → <strong>Output</strong> (Màn hình, loa) & <strong>Storage</strong> (Lưu trữ).</p>
+                    </div>
+                    <div class="info-card">
+                        <div class="card-icon"><i class="fas fa-memory"></i></div>
+                        <h3>Bộ Não CPU & Bộ Nhớ</h3>
+                        <ul>
+                            <li><strong>CPU:</strong> Đánh giá qua xung nhịp (GHz), số nhân (Cores) và bộ nhớ đệm Cache.</li>
+                            <li><strong>RAM (DDR4/DDR5):</strong> Bộ nhớ tạm tốc độ cao, mất dữ liệu khi tắt nguồn (IT nên dùng ≥16GB).</li>
+                            <li><strong>ROM:</strong> Bộ nhớ chỉ đọc chứa BIOS/UEFI khởi động máy.</li>
+                        </ul>
+                    </div>
+                    <div class="info-card">
+                        <div class="card-icon"><i class="fas fa-atom"></i></div>
+                        <h3>Lưu Trữ & Máy Tính Lượng Tử</h3>
+                        <p>Ổ cứng <strong>SSD NVMe</strong> thay thế HDD nhờ tốc độ vượt trội. Tương lai hướng tới tiến trình chip 3nm và <strong>Máy tính lượng tử (Quantum Computing)</strong> phá vỡ giới hạn tính toán cổ điển.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ================= SLIDE 3 ================= -->
+            <section id="slide-3" class="module-section">
+                <div class="module-header">
+                    <div>
+                        <span class="module-tag">Chuyên đề 03 / Slide 3</span>
+                        <h2>Hệ Điều Hành & Môi Trường Số Đa Nền Tảng</h2>
+                    </div>
+                    <button class="btn-present" onclick="openSlideDeck(2)">
+                        <i class="fas fa-play-circle"></i> Xem từng Slide (4 slides)
+                    </button>
+                </div>
+                <div class="cards-grid">
+                    <div class="info-card">
+                        <div class="card-icon"><i class="fas fa-desktop"></i></div>
+                        <h3>Vai Trò Của Hệ Điều Hành (OS)</h3>
+                        <p>Là lớp phần mềm hệ thống trung gian điều phối tài nguyên phần cứng (CPU, RAM, I/O) và cung cấp giao diện cho ứng dụng hoạt động (Windows, macOS, Linux, Android, iOS).</p>
+                    </div>
+                    <div class="info-card">
+                        <div class="card-icon"><i class="fas fa-cubes"></i></div>
+                        <h3>Ảo Hóa (VM) & Container (Docker)</h3>
+                        <ul>
+                            <li><strong>Virtual Machine:</strong> Giả lập toàn bộ phần cứng & OS độc lập, bảo mật cao.</li>
+                            <li><strong>Containerization (Docker):</strong> Đóng gói ứng dụng nhẹ, dùng chung nhân OS, khởi chạy siêu tốc.</li>
+                        </ul>
+                    </div>
+                    <div class="info-card">
+                        <div class="card-icon"><i class="fas fa-robot"></i></div>
+                        <h3>Hệ Sinh Thái Hợp Nhất & AI-OS</h3>
+                        <p>Đồng bộ liền mạch giữa Laptop, Smartphone và Cloud. Thế hệ OS mới tích hợp sâu trợ lý AI trực tiếp vào nhân hệ thống để tự động hóa thao tác người dùng.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ================= SLIDE 4 ================= -->
+            <section id="slide-4" class="module-section">
+                <div class="module-header">
+                    <div>
+                        <span class="module-tag">Chuyên đề 04 / Slide 4</span>
+                        <h2>Phần Mềm, Điện Toán Đám Mây & Platform</h2>
+                    </div>
+                    <button class="btn-present" onclick="openSlideDeck(3)">
+                        <i class="fas fa-play-circle"></i> Xem từng Slide (5 slides)
+                    </button>
+                </div>
+                <div class="cards-grid">
+                    <div class="info-card">
+                        <div class="card-icon"><i class="fas fa-code-branch"></i></div>
+                        <h3>Hệ Sinh Thái Phần Mềm & Bản Quyền</h3>
+                        <p>Gồm phần mềm hệ thống, phần mềm ứng dụng và Firmware nhúng. Sinh viên IT cần phân biệt rõ phần mềm thương mại có bản quyền, Freeware và Mã nguồn mở (Open Source).</p>
+                    </div>
+                    <div class="info-card">
+                        <div class="card-icon"><i class="fas fa-cloud"></i></div>
+                        <h3>3 Mô Hình Dịch Vụ Cloud</h3>
+                        <ul>
+                            <li><strong>IaaS (Hạ tầng):</strong> Thuê máy chủ ảo, mạng (AWS EC2).</li>
+                            <li><strong>PaaS (Nền tảng):</strong> Môi trường sẵn sàng để dev đẩy code lên chạy.</li>
+                            <li><strong>SaaS (Phần mềm):</strong> Dùng ngay qua web (Google Workspace, M365).</li>
+                        </ul>
+                    </div>
+                    <div class="info-card">
+                        <div class="card-icon"><i class="fas fa-network-wired"></i></div>
+                        <h3>Kiến Trúc Triển Khai Đám Mây</h3>
+                        <p>Bao gồm <strong>Public Cloud</strong> (công cộng), <strong>Private Cloud</strong> (riêng tư bảo mật cao), <strong>Hybrid Cloud</strong> (lai) và <strong>Multi-Cloud</strong> tránh lệ thuộc một nhà cung cấp.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ================= SLIDE 5 ================= -->
+            <section id="slide-5" class="module-section">
+                <div class="module-header">
+                    <div>
+                        <span class="module-tag">Chuyên đề 05 / Slide 5</span>
+                        <h2>Mạng Máy Tính, Internet 4.0, 6G & IoT</h2>
+                    </div>
+                    <button class="btn-present" onclick="openSlideDeck(4)">
+                        <i class="fas fa-play-circle"></i> Xem từng Slide (5 slides)
+                    </button>
+                </div>
+                <div class="cards-grid">
+                    <div class="info-card">
+                        <div class="card-icon"><i class="fas fa-layer-group"></i></div>
+                        <h3>Mô Hình OSI (7 Tầng) & TCP/IP</h3>
+                        <p>Quá trình đóng gói dữ liệu (Encapsulation): Data → Segment (TCP/UDP) → Datagram (IP) → Frame → Bits. Phân biệt mạng cục bộ <strong>LAN</strong> và mạng diện rộng <strong>WAN</strong>.</p>
+                    </div>
+                    <div class="info-card">
+                        <div class="card-icon"><i class="fas fa-satellite"></i></div>
+                        <h3>Tiến Hóa 1G–5G, Tầm Nhìn 6G & IPv6</h3>
+                        <ul>
+                            <li><strong>Mạng 6G:</strong> Tốc độ chạm ngưỡng 1 Tbps, độ trễ &lt;1ms, kết nối 3D mặt đất - vệ tinh và Native AI.</li>
+                            <li><strong>IPv6 (128-bit):</strong> Thay thế IPv4 cạn kiệt, cấp không gian địa chỉ vô hạn cho hàng tỷ thiết bị.</li>
+                        </ul>
+                    </div>
+                    <div class="info-card">
+                        <div class="card-icon"><i class="fas fa-wifi"></i></div>
+                        <h3>Internet Vạn Vật (IoT)</h3>
+                        <p>Vòng lặp <em>Cảm nhận → Xử lý → Phản ứng</em> ứng dụng trong Smart Home, Smart City, Y tế từ xa. Thách thức lớn nhất là bảo mật dữ liệu và chống chiếm quyền điều khiển.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ================= SLIDE 6 ================= -->
+            <section id="slide-6" class="module-section">
+                <div class="module-header">
+                    <div>
+                        <span class="module-tag">Chuyên đề 06 / Slide 6</span>
+                        <h2>Tư Duy Lập Trình, Tự Động Hóa & Vibe Code</h2>
+                    </div>
+                    <button class="btn-present" onclick="openSlideDeck(5)">
+                        <i class="fas fa-play-circle"></i> Xem từng Slide (5 slides)
+                    </button>
+                </div>
+                <div class="cards-grid">
+                    <div class="info-card">
+                        <div class="card-icon"><i class="fas fa-brain"></i></div>
+                        <h3>4 Bước Tư Duy Máy Tính (CT)</h3>
+                        <ul>
+                            <li><strong>1. Phân rã (Decomposition):</strong> Chia nhỏ bài toán lớn.</li>
+                            <li><strong>2. Trừu tượng hóa:</strong> Lọc bỏ chi tiết thừa, giữ bản chất.</li>
+                            <li><strong>3. Nhận diện khuôn mẫu:</strong> Tìm quy luật lặp lại.</li>
+                            <li><strong>4. Thiết kế thuật toán:</strong> Viết chỉ dẫn từng bước chính xác.</li>
+                        </ul>
+                    </div>
+                    <div class="info-card">
+                        <div class="card-icon"><i class="fas fa-cogs"></i></div>
+                        <h3>Tự Động Hóa CNTT (IT Automation)</h3>
+                        <p>Dùng Trigger + Scripts + Workflows để thay thế thao tác thủ công: <strong>BPA</strong> (cấp doanh nghiệp), <strong>RPA</strong> (robot giao diện) và <strong>IaC</strong> (quản lý hạ tầng bằng mã).</p>
+                    </div>
+                    <div class="info-card">
+                        <div class="card-icon"><i class="fas fa-wand-magic-sparkles"></i></div>
+                        <h3>Low-Code, No-Code & Vibe Coding</h3>
+                        <p><strong>Vibe Coding</strong> chuyển dịch lập trình viên từ người gõ cú pháp sang kiến trúc sư điều phối AI qua hội thoại tự nhiên (Mô tả → Tạo → Thực thi → Tinh chỉnh).</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ================= SLIDE 7 ================= -->
+            <section id="slide-7" class="module-section">
+                <div class="module-header">
+                    <div>
+                        <span class="module-tag">Chuyên đề 07 / Slide 7</span>
+                        <h2>Trí Tuệ Nhân Tạo (AI), Dữ Liệu & Prompt Engineering</h2>
+                    </div>
+                    <button class="btn-present" onclick="openSlideDeck(6)">
+                        <i class="fas fa-play-circle"></i> Xem từng Slide (5 slides)
+                    </button>
+                </div>
+                <div class="cards-grid">
+                    <div class="info-card">
+                        <div class="card-icon"><i class="fas fa-project-diagram"></i></div>
+                        <h3>3 Cấp Độ Trí Tuệ Nhân Tạo</h3>
+                        <ul>
+                            <li><strong>ANI (AI Hẹp):</strong> Chuyên biệt 1 tác vụ (hiện tại).</li>
+                            <li><strong>AGI (AI Tổng quát):</strong> Tư duy linh hoạt ngang con người.</li>
+                            <li><strong>ASI (Siêu trí tuệ):</strong> Vượt xa trí tuệ nhân loại.</li>
+                        </ul>
+                    </div>
+                    <div class="info-card">
+                        <div class="card-icon"><i class="fas fa-terminal"></i></div>
+                        <h3>Kỹ Thuật Prompt Engineering</h3>
+                        <p>Cấu trúc Prompt chuẩn gồm: <strong>Ngữ cảnh (Context) + Chỉ thị (Instruction) + Ví dụ (Examples) + Định dạng (Format)</strong>. Áp dụng Zero-shot, Few-shot và Chain-of-Thought (CoT).</p>
+                    </div>
+                    <div class="info-card">
+                        <div class="card-icon"><i class="fas fa-database"></i></div>
+                        <h3>Dữ Liệu Lớn & Tác Động Kép</h3>
+                        <p>Big Data (4V: Volume, Velocity, Variety, Veracity) là nhiên liệu cho AI. Cần cân bằng giữa đột phá y tế/giáo dục với rủi ro thiên kiến (Bias), tiêu thụ năng lượng và mất việc làm.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ================= SLIDE 8 ================= -->
+            <section id="slide-8" class="module-section">
+                <div class="module-header">
+                    <div>
+                        <span class="module-tag">Chuyên đề 08 / Slide 8</span>
+                        <h2>An Toàn Thông Tin, Đạo Đức Số & Pháp Luật</h2>
+                    </div>
+                    <button class="btn-present" onclick="openSlideDeck(7)">
+                        <i class="fas fa-play-circle"></i> Xem từng Slide (5 slides)
+                    </button>
+                </div>
+                <div class="cards-grid">
+                    <div class="info-card">
+                        <div class="card-icon"><i class="fas fa-shield-alt"></i></div>
+                        <h3>Tam Giác Bảo Mật CIA & ISO 27000</h3>
+                        <ul>
+                            <li><strong>Confidentiality (Bảo mật):</strong> Chỉ người được cấp phép mới truy cập.</li>
+                            <li><strong>Integrity (Toàn vẹn):</strong> Dữ liệu chính xác, không bị sửa trái phép.</li>
+                            <li><strong>Availability (Sẵn sàng):</strong> Hệ thống luôn hoạt động khi cần.</li>
+                        </ul>
+                    </div>
+                    <div class="info-card">
+                        <div class="card-icon"><i class="fas fa-balance-scale"></i></div>
+                        <h3>Đạo Đức Số & Phòng Chống Deepfake</h3>
+                        <p>Đạo đức số (UNESCO, Microsoft, Google, OpenAI) là "vô lăng" dẫn hướng công nghệ. Phòng thủ Deepfake bằng 3 tuyến: Pháp lý, AI nhận diện và chuẩn xác thực nguồn gốc <strong>C2PA</strong>.</p>
+                    </div>
+                    <div class="info-card">
+                        <div class="card-icon"><i class="fas fa-gavel"></i></div>
+                        <h3>Hành Lang Pháp Lý Tại Việt Nam</h3>
+                        <ul>
+                            <li><strong>Luật An ninh mạng</strong> (24/2018/QH14).</li>
+                            <li><strong>Luật Bảo vệ dữ liệu cá nhân</strong> (91/2025/QH15).</li>
+                            <li><strong>Luật Trí tuệ nhân tạo</strong> (134/2025/QH15).</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- MODAL TRÌNH CHIẾU TỪNG SLIDE -->
+    <div class="slide-modal" id="slideModal">
+        <div class="slide-viewer">
+            <div class="slide-top">
+                <span class="slide-topic-badge" id="modalTopicBadge">Chuyên đề 01</span>
+                <button class="close-modal" id="closeModalBtn" title="Đóng (ESC)"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="slide-body">
+                <h2 id="slideTitle">Tiêu đề Slide</h2>
+                <div class="slide-body-content" id="slideContent">Nội dung chi tiết...</div>
+            </div>
+            <div class="slide-footer">
+                <span class="slide-counter" id="slideCounter">Slide 1 / 5</span>
+                <div class="slide-nav-btns">
+                    <button class="nav-slide-btn" id="prevSlideBtn"><i class="fas fa-arrow-left"></i> Trước</button>
+                    <button class="nav-slide-btn" id="nextSlideBtn">Tiếp <i class="fas fa-arrow-right"></i></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /* ================= DỮ LIỆU 8 BỘ SLIDE TRÌNH CHIẾU ================= */
+        const slideDecks = [
+            // Deck 0: Slide 1
+            {
+                topic: "Chuyên đề 01 • CMCN 4.0 & Chuyển đổi số",
+                slides: [
+                    {
+                        title: "1. Khái niệm Cách mạng Công nghiệp (CMCN)",
+                        content: "<ul><li>Là bước nhảy vọt về công nghệ sản xuất, làm thay đổi căn bản phương thức làm việc và cấu trúc xã hội.</li><li><strong>CMCN 1.0 (1760):</strong> Máy hơi nước cơ khí hóa.</li><li><strong>CMCN 2.0 (1870):</strong> Điện năng & dây chuyền sản xuất hàng loạt.</li><li><strong>CMCN 3.0 (1970):</strong> Máy tính cá nhân, bán dẫn & tự động hóa.</li><li><strong>CMCN 4.0 (2010+):</strong> Kết nối thực - ảo, dữ liệu lớn và trí tuệ nhân tạo.</li></ul>"
+                    },
+                    {
+                        title: "2. Công nghệ thông tin 4.0 (CNTT 4.0)",
+                        content: "<ul><li>Ứng dụng công nghệ số hiện đại để xử lý dữ liệu lớn và tự động hóa quy trình thông minh.</li><li>Kết nối toàn cầu con người - thiết bị - hệ thống qua Internet tốc độ cao.</li><li>Là hạ tầng xương sống kiến tạo nên <strong>Kinh tế số</strong> và <strong>Xã hội số</strong>.</li></ul>"
+                    },
+                    {
+                        title: "3. Bốn trụ cột công nghệ của thời đại 4.0",
+                        content: "<ul><li><strong>Trí tuệ nhân tạo (AI):</strong> Giúp máy tính học từ dữ liệu, nhận diện và hỗ trợ ra quyết định.</li><li><strong>Internet of Things (IoT):</strong> Mạng lưới thiết bị vật lý gắn cảm biến giao tiếp qua Internet.</li><li><strong>Big Data:</strong> Xử lý khối lượng dữ liệu khổng lồ với tốc độ thời gian thực.</li><li><strong>Cloud Computing:</strong> Lưu trữ và tính toán linh hoạt trên đám mây (AWS, Azure, Google Cloud).</li></ul>"
+                    },
+                    {
+                        title: "4. Chuyển đổi số (Digital Transformation)",
+                        content: "<ul><li>Không chỉ là số hóa tài liệu, mà là thay đổi toàn diện mô hình vận hành tổ chức dựa trên dữ liệu và công nghệ số.</li><li>Tại Việt Nam, CĐS tập trung vào 3 trụ cột: <strong>Chính phủ số, Kinh tế số và Xã hội số</strong>.</li></ul>"
+                    },
+                    {
+                        title: "5. Hành trang cho Sinh viên IT năm nhất FPT",
+                        content: "<ul><li><strong>Kỹ năng cứng:</strong> Tư duy logic, tư duy lập trình, nắm chắc kiến thức nền tảng và thực hành dự án thực tế (CDIO).</li><li><strong>Kỹ năng mềm:</strong> Làm việc nhóm, thuyết trình, quản lý thời gian và ngoại ngữ (Tiếng Anh chuyên ngành).</li><li><strong>Tư duy:</strong> Chủ động cập nhật công nghệ và học tập suốt đời.</li></ul>"
+                    }
+                ]
+            },
+            // Deck 1: Slide 2
+            {
+                topic: "Chuyên đề 02 • Kiến trúc & Phần cứng Máy tính",
+                slides: [
+                    {
+                        title: "1. Mô hình hoạt động của máy tính",
+                        content: "<ul><li>Máy tính là thiết bị điện tử xử lý thông tin theo chương trình lập sẵn.</li><li><strong>Input (Nhập):</strong> Bàn phím, chuột, webcam, máy quét.</li><li><strong>Process (Xử lý):</strong> Bộ vi xử lý trung tâm CPU.</li><li><strong>Output (Xuất):</strong> Màn hình, loa, máy in, máy chiếu.</li><li><strong>Storage (Lưu trữ):</strong> SSD, HDD, USB, thẻ nhớ.</li></ul>"
+                    },
+                    {
+                        title: "2. Bộ xử lý trung tâm (CPU)",
+                        content: "<ul><li>Được ví như <em>'bộ não của máy tính'</em>, thực thi lệnh và điều khiển toàn bộ hệ thống.</li><li><strong>3 thông số vàng:</strong> Xung nhịp (GHz), Số nhân/luồng (Cores/Threads) và Bộ nhớ đệm (Cache L1/L2/L3).</li><li>Hai kiến trúc phổ biến trên PC/Laptop hiện nay là <strong>Intel</strong> (Core i3–i9) và <strong>AMD</strong> (Ryzen 3–9).</li></ul>"
+                    },
+                    {
+                        title: "3. Phân biệt bộ nhớ RAM và ROM",
+                        content: "<ul><li><strong>RAM (Random Access Memory):</strong> Bộ nhớ truy xuất ngẫu nhiên tạm thời, tốc độ siêu nhanh, mất dữ liệu khi tắt điện. Sinh viên IT nên trang bị tối thiểu <strong>16GB RAM</strong>.</li><li><strong>ROM (Read Only Memory):</strong> Bộ nhớ chỉ đọc lưu trữ chương trình khởi động hệ thống (BIOS/UEFI) và Firmware.</li></ul>"
+                    },
+                    {
+                        title: "4. Thiết bị lưu trữ & Tiêu chí chọn Laptop IT",
+                        content: "<ul><li>Ưu tiên ổ cứng <strong>SSD NVMe</strong> để khởi động OS và biên dịch code nhanh gấp nhiều lần HDD.</li><li>Chọn máy cân bằng giữa hiệu năng CPU, dung lượng RAM, màn hình rõ nét (Full HD trở lên), bàn phím gõ tốt và độ bền.</li></ul>"
+                    },
+                    {
+                        title: "5. Xu hướng tương lai & Máy tính lượng tử",
+                        content: "<ul><li>Tiến trình bán dẫn thu nhỏ (7nm → 5nm → 3nm) giúp chip mạnh hơn và tiết kiệm điện.</li><li><strong>Máy tính lượng tử (Quantum Computing):</strong> Sử dụng Qubit thay cho Bit truyền thống, mở ra bước nhảy vọt giải quyết các bài toán siêu phức tạp.</li></ul>"
+                    }
+                ]
+            },
+            // Deck 2: Slide 3
+            {
+                topic: "Chuyên đề 03 • Hệ điều hành & Đa nền tảng",
+                slides: [
+                    {
+                        title: "1. Khái niệm & Vai trò Hệ điều hành (OS)",
+                        content: "<ul><li>OS là phần mềm hệ thống quan trọng nhất, đóng vai trò cầu nối giữa người dùng, ứng dụng và phần cứng.</li><li>Quản lý tiến trình CPU, phân bổ bộ nhớ RAM, quản lý hệ thống tệp tin và thiết bị ngoại vi.</li></ul>"
+                    },
+                    {
+                        title: "2. Hệ sinh thái hợp nhất (Unified Ecosystem)",
+                        content: "<ul><li>Xu hướng kết nối liền mạch giữa PC, Laptop, Tablet và Smartphone.</li><li>Cho phép chia sẻ clipboard, tiếp tục công việc dang dở và đồng bộ dữ liệu tức thì qua tài khoản đám mây.</li></ul>"
+                    },
+                    {
+                        title: "3. Ảo hóa (Virtualization) & Container (Docker)",
+                        content: "<ul><li><strong>Virtual Machine (VirtualBox, VMware):</strong> Giả lập toàn bộ phần cứng và cài đặt OS riêng biệt → Cách ly và bảo mật tối đa.</li><li><strong>Container (Docker):</strong> Đóng gói ứng dụng cùng thư viện, dùng chung nhân OS chủ → Nhẹ, khởi động trong vài giây, tối ưu hiệu suất triển khai.</li></ul>"
+                    },
+                    {
+                        title: "4. Hệ điều hành tích hợp AI (AI-Integrated OS)",
+                        content: "<ul><li>AI không còn là phần mềm cài thêm mà được nhúng sâu vào lõi hệ điều hành (như Copilot trên Windows, Apple Intelligence).</li><li>Hỗ trợ tìm kiếm ngữ nghĩa, tóm tắt tài liệu và tự động hóa tác vụ ngay ở cấp độ hệ thống.</li></ul>"
+                    }
+                ]
+            },
+            // Deck 3: Slide 4
+            {
+                topic: "Chuyên đề 04 • Phần mềm, Cloud & Platform",
+                slides: [
+                    {
+                        title: "1. Định nghĩa & Phân loại Phần mềm",
+                        content: "<ul><li>Theo chuẩn IEEE, phần mềm gồm: Mã nguồn (Code), Quy trình, Tài liệu và Dữ liệu.</li><li><strong>Phần mềm hệ thống:</strong> Hệ điều hành, driver.</li><li><strong>Phần mềm ứng dụng:</strong> Office, trình duyệt web, IDE lập trình, phần mềm chuyên dụng.</li><li><strong>Firmware:</strong> Phần mềm nhúng trực tiếp vào phần cứng thiết bị.</li></ul>"
+                    },
+                    {
+                        title: "2. Bản quyền phần mềm & Mã nguồn mở",
+                        content: "<ul><li><strong>Phần mềm bản quyền:</strong> Trả phí để sử dụng hợp pháp, được cập nhật bảo mật và hỗ trợ kỹ thuật đầy đủ.</li><li><strong>Open Source (Mã nguồn mở):</strong> Công khai mã nguồn cho phép cộng đồng tự do nghiên cứu, sửa đổi và phát triển (Linux, VS Code, Python).</li></ul>"
+                    },
+                    {
+                        title: "3. Điện toán đám mây (Cloud Computing) chuẩn NIST",
+                        content: "<ul><li>Hội đủ 5 đặc tính: Truy cập mạng rộng rãi, Tự phục vụ theo nhu cầu, Dùng chung tài nguyên, Co giãn nhanh và Đo lường dịch vụ.</li><li>Giúp cá nhân đồng bộ dữ liệu và doanh nghiệp mở rộng quy mô toàn cầu trong vài phút.</li></ul>"
+                    },
+                    {
+                        title: "4. Ba mô hình dịch vụ Cloud (IaaS - PaaS - SaaS)",
+                        content: "<ul><li><strong>IaaS (Infrastructure as a Service):</strong> Thuê máy chủ ảo, mạng (VD: Amazon EC2).</li><li><strong>PaaS (Platform as a Service):</strong> Trái tim của lập trình viên — cung cấp sẵn OS, runtime, database để dev chỉ tập trung viết code.</li><li><strong>SaaS (Software as a Service):</strong> Phần mềm hoàn chỉnh chạy trên trình duyệt (VD: Google Drive, Microsoft 365).</li></ul>"
+                    },
+                    {
+                        title: "5. Các mô hình triển khai đám mây",
+                        content: "<ul><li><strong>Public Cloud:</strong> Hạ tầng chia sẻ công cộng, tiết kiệm chi phí.</li><li><strong>Private Cloud:</strong> Hạ tầng dùng riêng cho 1 tổ chức, bảo mật tối đa.</li><li><strong>Hybrid Cloud:</strong> Kết hợp Public & Private để tối ưu chi phí và an toàn dữ liệu.</li><li><strong>Multi-Cloud:</strong> Dùng đồng thời nhiều nhà cung cấp (AWS + Azure + GCP) để tránh lệ thuộc.</li></ul>"
+                    }
+                ]
+            },
+            // Deck 4: Slide 5
+            {
+                topic: "Chuyên đề 05 • Mạng, Internet 4.0 & IoT",
+                slides: [
+                    {
+                        title: "1. Mạng máy tính & Mô hình phân lớp OSI / TCP-IP",
+                        content: "<ul><li>Mạng máy tính kết nối các thiết bị đầu cuối qua phương tiện truyền dẫn (cáp đồng, cáp quang, sóng vô tuyến) và nút mạng (Router, Switch).</li><li><strong>Quá trình đóng gói (Encapsulation):</strong> Data → Segment (TCP/UDP) → Datagram (IP) → Frame → Bits.</li><li><strong>TCP:</strong> Tin cậy, đúng thứ tự (Web, Email). <strong>UDP:</strong> Tốc độ cao, độ trễ thấp (Livestream, Game).</li></ul>"
+                    },
+                    {
+                        title: "2. Mạng Internet & World Wide Web (WWW)",
+                        content: "<ul><li>Internet bắt nguồn từ dự án ARPANET (1969) và chuẩn hóa TCP/IP (1982).</li><li><strong>WWW (Tim Berners-Lee, 1991):</strong> Hệ thống siêu văn bản (Hypertext) chạy trên nền tảng hạ tầng Internet.</li></ul>"
+                    },
+                    {
+                        title: "3. Tiến hóa mạng di động 1G → 5G",
+                        content: "<ul><li><strong>1G (1980s):</strong> Thoại Analog, dễ bị nghe lén.</li><li><strong>2G (1991):</strong> Kỹ thuật số GSM, ra mắt tin nhắn SMS.</li><li><strong>3G (2000s):</strong> Dữ liệu di động, lướt web, gọi video.</li><li><strong>4G LTE:</strong> Chuyển mạch gói thuần IP (All-IP), xem video HD mượt mà.</li><li><strong>5G:</strong> Tốc độ &gt;1 Gbps, độ trễ siêu thấp kết nối đa thiết bị.</li></ul>"
+                    },
+                    {
+                        title: "4. Tầm nhìn mạng 6G & Không gian IPv6",
+                        content: "<ul><li><strong>Mạng 6G:</strong> Tốc độ đạt 1 Tbps, độ trễ &lt;1ms, tích hợp Native AI và kết nối 3D mặt đất - vệ tinh (Starlink).</li><li><strong>IPv6 (128-bit):</strong> Giải quyết triệt để sự cạn kiệt của IPv4 (32-bit), cung cấp 340 undecillion địa chỉ IP cho kỷ nguyên vạn vật.</li></ul>"
+                    },
+                    {
+                        title: "5. Internet vạn vật (IoT) & Thách thức bảo mật",
+                        content: "<ul><li>Biến vật thể thường thành <strong>Smart Objects</strong> qua vòng lặp: <em>Cảm nhận → Xử lý → Phản ứng</em>.</li><li>Ứng dụng rộng rãi trong Smart Home, Thành phố thông minh và Y tế từ xa.</li><li><strong>Rủi ro:</strong> Lộ dữ liệu cá nhân và nguy cơ tin tặc chiếm quyền điều khiển thiết bị vật lý.</li></ul>"
+                    }
+                ]
+            },
+            // Deck 5: Slide 6
+            {
+                topic: "Chuyên đề 06 • Tư duy lập trình & Vibe Code",
+                slides: [
+                    {
+                        title: "1. Tư duy máy tính (Computational Thinking)",
+                        content: "<ul><li>Là kỹ năng giải quyết vấn đề theo cách máy tính có thể hiểu và thực thi vô điều kiện.</li><li><strong>Con người vs Máy tính:</strong> Con người hiểu ngữ cảnh nhưng tính chậm; Máy tính vô tri nhưng tính toán hàng nghìn tỷ phép tính/giây.</li></ul>"
+                    },
+                    {
+                        title: "2. Bốn trụ cột của Tư duy lập trình",
+                        content: "<ul><li><strong>Bước 1 - Phân rã (Decomposition):</strong> Chia hệ thống phức tạp thành các module nhỏ độc lập.</li><li><strong>Bước 2 - Trừu tượng hóa (Abstraction):</strong> Loại bỏ chi tiết rườm rà, tập trung vào cốt lõi.</li><li><strong>Bước 3 - Nhận diện khuôn mẫu:</strong> Tìm sự tương đồng để tái sử dụng giải pháp.</li><li><strong>Bước 4 - Thiết kế thuật toán:</strong> Xây dựng lưu đồ chỉ dẫn từng bước chính xác tuyệt đối.</li></ul>"
+                    },
+                    {
+                        title: "3. Tự động hóa trong CNTT (IT Automation)",
+                        content: "<ul><li>Cơ chế vận hành: <strong>Trigger (Kích hoạt) → Scripts (Kịch bản) → Workflows (Chuỗi quy trình)</strong>.</li><li><strong>3 cấp độ:</strong> BPA (Tự động hóa quy trình doanh nghiệp), RPA (Robot thao tác giao diện) và IaC (Quản lý hạ tầng máy chủ bằng mã).</li></ul>"
+                    },
+                    {
+                        title: "4. Low-Code, No-Code & Kỷ nguyên Vibe Coding",
+                        content: "<ul><li><strong>No-Code / Low-Code:</strong> Kéo thả trực quan giúp rút ngắn thời gian phát triển ứng dụng.</li><li><strong>Vibe Coding:</strong> Lập trình qua hội thoại bằng ngôn ngữ tự nhiên với AI theo vòng lặp: <em>Mô tả → Tạo → Thực thi → Tinh chỉnh</em>.</li></ul>"
+                    },
+                    {
+                        title: "5. Chuyển dịch vai trò của Lập trình viên",
+                        content: "<ul><li>AI trở thành cộng sự đắc lực (Pair Programmer) xử lý các đoạn mã lặp lại.</li><li>Lập trình viên nâng tầm thành <strong>Kiến trúc sư hệ thống</strong>: Tập trung thiết kế logic, thẩm định mã nguồn AI và chịu trách nhiệm bảo mật cuối cùng.</li></ul>"
+                    }
+                ]
+            },
+            // Deck 6: Slide 7
+            {
+                topic: "Chuyên đề 07 • Trí tuệ nhân tạo & Prompt",
+                slides: [
+                    {
+                        title: "1. Bản chất & Lịch sử phát triển AI",
+                        content: "<ul><li>Khởi nguồn từ Phép thử Turing (1950) và Hội nghị Dartmouth (1956).</li><li>AI hiện đại vận hành như một <strong>Tác nhân thông minh (Intelligent Agent)</strong>: Nhận dữ liệu qua cảm biến → Suy luận → Hành động.</li><li>Bước ngoặt <strong>Kiến trúc Transformer (2017)</strong> mở ra kỷ nguyên AI Tạo sinh (Generative AI).</li></ul>"
+                    },
+                    {
+                        title: "2. Phân loại AI theo cấp độ thông minh",
+                        content: "<ul><li><strong>ANI (Artificial Narrow Intelligence):</strong> AI hẹp chuyên biệt 1 nhiệm vụ (FaceID, ChatGPT, xe tự lái).</li><li><strong>AGI (Artificial General Intelligence):</strong> AI tổng quát có năng lực nhận thức đa nhiệm ngang con người.</li><li><strong>ASI (Artificial Superintelligence):</strong> Siêu trí tuệ vượt qua mọi giới hạn của nhân loại.</li></ul>"
+                    },
+                    {
+                        title: "3. Giải phẫu một Prompt hoàn chỉnh",
+                        content: "<ul><li><strong>Prompt Engineering</strong> là nghệ thuật kết hợp khoa học để điều khiển AI trả về kết quả chính xác nhất.</li><li><strong>4 thành phần vàng:</strong> 1. Ngữ cảnh (Context) + 2. Chỉ thị cốt lõi (Instruction) + 3. Ví dụ mẫu (Examples) + 4. Định dạng đầu ra (Format).</li></ul>"
+                    },
+                    {
+                        title: "4. Các kỹ thuật viết Prompt nâng cao",
+                        content: "<ul><li><strong>Zero-shot:</strong> Ra lệnh trực tiếp không cần ví dụ (dịch thuật, tóm tắt nhanh).</li><li><strong>One-shot / Few-shot:</strong> Cung cấp 1 hoặc vài mẫu Input-Output để AI học theo đúng văn phong.</li><li><strong>Chain-of-Thought (CoT):</strong> Yêu cầu AI <em>'suy nghĩ từng bước một'</em> để giải toán và suy luận logic chính xác.</li></ul>"
+                    },
+                    {
+                        title: "5. Vai trò Dữ liệu lớn (4V) & Đạo đức AI",
+                        content: "<ul><li>Dữ liệu là nhiên liệu, AI là động cơ, chính sách lấy con người làm trung tâm là vô lăng.</li><li>Cần kiểm soát thiên kiến dữ liệu (Bias), bảo vệ quyền riêng tư và tối ưu năng lượng tính toán.</li></ul>"
+                    }
+                ]
+            },
+            // Deck 7: Slide 8
+            {
+                topic: "Chuyên đề 08 • An toàn thông tin & Luật số",
+                slides: [
+                    {
+                        title: "1. Tam giác bảo mật CIA & ISO 27000",
+                        content: "<ul><li><strong>Confidentiality (Tính bảo mật):</strong> Ngăn chặn truy cập trái phép vào dữ liệu nhạy cảm.</li><li><strong>Integrity (Tính toàn vẹn):</strong> Đảm bảo thông tin chính xác, không bị chỉnh sửa sai lệch.</li><li><strong>Availability (Tính sẵn sàng):</strong> Đảm bảo hệ thống luôn thông suốt cho người dùng hợp lệ.</li><li><em>Lưu ý:</em> Con người luôn là mắt xích yếu nhất trong mọi hệ thống bảo mật.</li></ul>"
+                    },
+                    {
+                        title: "2. Đạo đức số qua lăng kính 4 tổ chức lớn",
+                        content: "<ul><li><strong>UNESCO:</strong> Bảo vệ quyền con người, nhân phẩm và môi trường bền vững.</li><li><strong>Microsoft:</strong> 6 trụ cột đạo đức tích hợp trực tiếp vào phần mềm.</li><li><strong>Google:</strong> Cân bằng giữa đổi mới táo bạo và phát triển có trách nhiệm.</li><li><strong>OpenAI:</strong> Định hướng an toàn dài hạn cho kỷ nguyên AGI.</li></ul>"
+                    },
+                    {
+                        title: "3. Hiểm họa Deepfake & 3 Tuyến phòng thủ",
+                        content: "<ul><li><strong>Rủi ro:</strong> Lừa đảo tài chính, trộm cắp danh tính, thao túng truyền thông.</li><li><strong>Tuyến 1 (Chính sách):</strong> Đạo luật AI, dán nhãn nội dung tạo bởi AI.</li><li><strong>Tuyến 2 (Nhận diện):</strong> Thuật toán phân tích vi tuần hoàn máu (PPG) và bất thường khung hình.</li><li><strong>Tuyến 3 (Xác thực nguồn gốc):</strong> Tiêu chuẩn <strong>C2PA</strong>, thủy vân số (Watermarking) và chữ ký mã hóa.</li></ul>"
+                    },
+                    {
+                        title: "4. Một số bộ luật quan trọng tại Việt Nam",
+                        content: "<ul><li><strong>Luật An ninh mạng (24/2018/QH14):</strong> Bảo vệ an ninh quốc gia và trật tự an toàn trên không gian mạng.</li><li><strong>Luật Bảo vệ dữ liệu cá nhân (91/2025/QH15):</strong> Quy định nghiêm ngặt về thu thập, xử lý và bảo vệ dữ liệu công dân.</li><li><strong>Luật Trí tuệ nhân tạo (134/2025/QH15):</strong> Quản lý hoạt động nghiên cứu, triển khai và sử dụng AI an toàn tại Việt Nam.</li></ul>"
+                    },
+                    {
+                        title: "5. Trách nhiệm công dân số FPT Polytechnic",
+                        content: "<ul><li>Sử dụng mật khẩu mạnh, bật xác thực đa yếu tố (2FA) và cảnh giác với email lừa đảo (Phishing).</li><li>Tôn trọng bản quyền phần mềm, kiểm chứng thông tin trước khi chia sẻ và ứng dụng AI minh bạch, có trách nhiệm.</li></ul>"
+                    }
+                ]
+            }
+        ];
+
+        /* ================= LOGIC ĐIỀU KHIỂN SLIDE MODAL ================= */
+        let currentDeckIndex = 0;
+        let currentSlideIndex = 0;
+
+        const modal = document.getElementById('slideModal');
+        const modalTopicBadge = document.getElementById('modalTopicBadge');
+        const slideTitle = document.getElementById('slideTitle');
+        const slideContent = document.getElementById('slideContent');
+        const slideCounter = document.getElementById('slideCounter');
+        const prevSlideBtn = document.getElementById('prevSlideBtn');
+        const nextSlideBtn = document.getElementById('nextSlideBtn');
+
+        function openSlideDeck(deckIdx) {
+            currentDeckIndex = deckIdx;
+            currentSlideIndex = 0;
+            renderSlide();
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeSlideDeck() {
+            modal.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        function renderSlide() {
+            const deck = slideDecks[currentDeckIndex];
+            const slide = deck.slides[currentSlideIndex];
+
+            modalTopicBadge.textContent = deck.topic;
+            slideTitle.textContent = slide.title;
+            slideContent.innerHTML = slide.content;
+            slideCounter.textContent = `Slide ${currentSlideIndex + 1} / ${deck.slides.length}`;
+
+            prevSlideBtn.disabled = currentSlideIndex === 0;
+            nextSlideBtn.disabled = currentSlideIndex === deck.slides.length - 1;
+        }
+
+        prevSlideBtn.addEventListener('click', () => {
+            if (currentSlideIndex > 0) {
+                currentSlideIndex--;
+                renderSlide();
+            }
+        });
+
+        nextSlideBtn.addEventListener('click', () => {
+            const total = slideDecks[currentDeckIndex].slides.length;
+            if (currentSlideIndex < total - 1) {
+                currentSlideIndex++;
+                renderSlide();
+            }
+        });
+
+        document.getElementById('closeModalBtn').addEventListener('click', closeSlideDeck);
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) closeSlideDeck();
+        });
+
+        // Điều khiển bằng phím mũi tên & ESC
+        document.addEventListener('keydown', (e) => {
+            if (!modal.classList.contains('active')) return;
+            if (e.key === 'Escape') closeSlideDeck();
+            if (e.key === 'ArrowRight') nextSlideBtn.click();
+            if (e.key === 'ArrowLeft') prevSlideBtn.click();
+        });
+
+        /* ================= CHẾ ĐỘ SÁNG / TỐI (DARK / LIGHT MODE) ================= */
+        const themeToggle = document.getElementById('themeToggle');
+        const themeIcon = document.getElementById('themeIcon');
+        const themeText = document.getElementById('themeText');
+        const htmlEl = document.documentElement;
+
+        const savedTheme = localStorage.getItem('fpt_lib_theme') || 'dark';
+        applyTheme(savedTheme);
+
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = htmlEl.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            applyTheme(newTheme);
+            localStorage.setItem('fpt_lib_theme', newTheme);
+        });
+
+        function applyTheme(theme) {
+            htmlEl.setAttribute('data-theme', theme);
+            if (theme === 'dark') {
+                themeIcon.className = 'fas fa-sun';
+                themeText.textContent = 'Chế độ Sáng';
+            } else {
+                themeIcon.className = 'fas fa-moon';
+                themeText.textContent = 'Chế độ Tối';
+            }
+        }
+
+        /* ================= HIỆU ỨNG CUỘN, SCROLLSPY & TÌM KIẾM ================= */
+        const sections = document.querySelectorAll('.module-section');
+        const tocLinks = document.querySelectorAll('.toc-link');
+
+        // Intersection Observer cho hiệu ứng xuất hiện mượt mà
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.12 });
+
+        sections.forEach(sec => observer.observe(sec));
+
+        // Cập nhật thanh tiến trình & mục lục active khi cuộn
+        window.addEventListener('scroll', () => {
+            const scrollTop = window.scrollY;
+            const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+            const progress = (scrollTop / docHeight) * 100;
+            document.getElementById('readingProgress').style.width = progress + '%';
+
+            let currentId = '';
+            sections.forEach(sec => {
+                const top = sec.offsetTop - 150;
+                if (scrollTop >= top) {
+                    currentId = sec.getAttribute('id');
+                }
+            });
+
+            tocLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === '#' + currentId) {
+                    link.classList.add('active');
+                }
+            });
+        });
+
+        // Tìm kiếm nhanh theo từ khóa
+        document.getElementById('searchInput').addEventListener('input', function(e) {
+            const keyword = e.target.value.toLowerCase().trim();
+            sections.forEach(sec => {
+                const text = sec.innerText.toLowerCase();
+                sec.style.display = text.includes(keyword) ? 'block' : 'none';
+            });
+        });
+
+        // Menu mobile
+        const sidebar = document.getElementById('sidebar');
+        document.getElementById('menuToggle').addEventListener('click', () => {
+            sidebar.classList.toggle('open');
+        });
+        tocLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                if (window.innerWidth <= 992) sidebar.classList.remove('open');
+            });
+        });
+    </script>
+</body>
+</html>
